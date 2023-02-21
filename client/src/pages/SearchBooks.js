@@ -73,15 +73,16 @@ const SearchBooks = () => {
       return false;
     }
 
-    
+    console.log(bookToSave)
 
     try {
-      const response = await saveBook(bookToSave, token);
-
-      if (!response.ok) {
+      console.log(token)
+      const { data } = await saveBook(bookToSave);
+      
+      if (!data) {
         throw new Error('something went wrong!');
       }
-
+      console.log(data)
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
@@ -90,12 +91,12 @@ const SearchBooks = () => {
   };
 
   return (
-    <>
-      <div fluid className='text-light bg-dark pt-5'>
+    <main>
+      <div className='text-light bg-dark pt-5'>
         <Container>
           <h1>Search for Books!</h1>
           <Form onSubmit={handleFormSubmit}>
-            <Form.Row>
+            <Row>
               <Col xs={12} md={8}>
                 <Form.Control
                   name='searchInput'
@@ -111,7 +112,7 @@ const SearchBooks = () => {
                   Submit Search
                 </Button>
               </Col>
-            </Form.Row>
+            </Row>
           </Form>
         </Container>
       </div>
@@ -125,7 +126,7 @@ const SearchBooks = () => {
         <Row>
           {searchedBooks.map((book) => {
             return (
-              <Col md="4">
+              <Col md="4" key={book.bookId} value={book.bookId}>
                 <Card key={book.bookId} border='dark'>
                   {book.image ? (
                     <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
@@ -151,7 +152,7 @@ const SearchBooks = () => {
           })}
         </Row>
       </Container>
-    </>
+    </main>
   );
 };
 

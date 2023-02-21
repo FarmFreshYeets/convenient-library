@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Container,
   Card,
@@ -7,6 +7,7 @@ import {
   Col
 } from 'react-bootstrap';
 
+import { getSavedBookIds } from '../utils/localStorage';
 import { useQuery, useMutation } from '@apollo/client'
 import { GET_ME } from '../utils/queries';
 import Auth from '../utils/auth';
@@ -14,7 +15,10 @@ import { removeBookId } from '../utils/localStorage';
 import { REMOVE_BOOK } from '../utils/mutations';
 
 const SavedBooks = () => {
-  const userData = useQuery(GET_ME)
+  const { data } = useQuery(GET_ME, {
+    variables: { savedBooks: getSavedBookIds() }
+  })
+  console.log(data)
 
   const [deleteBook] = useMutation(REMOVE_BOOK)
 
@@ -27,9 +31,9 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await deleteBook(bookId, token);
+      const { data } = await deleteBook(bookId, token);
 
-      if (!response.ok) {
+      if (!data) {
         throw new Error('something went wrong!');
       }
 
@@ -41,12 +45,12 @@ const SavedBooks = () => {
   };
 
   // if data isn't here yet, say so
-  if (!userData) {
+  if (!data) {
     return <h2>LOADING...</h2>;
   }
 
   return (
-    <>
+    <main>
       <div fluid className='text-light bg-dark p-5'>
         <Container>
           <h1>Viewing saved books!</h1>
@@ -54,12 +58,12 @@ const SavedBooks = () => {
       </div>
       <Container>
         <h2 className='pt-5'>
-          {userData.savedBooks.length
-            ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
+          {data.me.savedBooks.length
+            ? `Viewing ${data.me.savedBooks.length} saved ${data.me.savedBooks.length === 1 ? 'book' : 'books'}:`
             : 'You have no saved books!'}
         </h2>
         <Row>
-          {userData.savedBooks.map((book) => {
+          {data.me.savedBooks.map((book) => {
             return (
               <Col md="4">
                 <Card key={book.bookId} border='dark'>
@@ -78,7 +82,7 @@ const SavedBooks = () => {
           })}
         </Row>
       </Container>
-    </>
+    </main>
   );
 };
 
