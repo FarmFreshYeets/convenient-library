@@ -77,7 +77,9 @@ const SearchBooks = () => {
 
     try {
       console.log(token)
-      const { data } = await saveBook(bookToSave);
+      const { data } = await saveBook({
+        variables:{ ...bookToSave}
+      });
       
       if (!data) {
         throw new Error('something went wrong!');

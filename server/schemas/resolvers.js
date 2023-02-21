@@ -35,22 +35,28 @@ const resolvers = {
 
             return { token, user };
         },
-        saveBook: async (parent, book, context) => {
+        saveBook: async (parent, { bookId, authors, description, image, title }, context) => {
             try {
-                console.log(book)
+                console.log(bookId)
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
-                    { $addToSet: { savedBooks: {...book} } }
-                );
+                    { $addToSet: { savedBooks: { 
+                        bookId: bookId, 
+                        authors: authors, 
+                        description: description, 
+                        image: image, 
+                        title: title
+                     }} 
+                });
                 return updatedUser;
             } catch (err) {
                 throw new AuthenticationError(err);
             }
         },
-        removeBook: async (parent, { user, params }) => {
+        removeBook: async (parent, { bookId }, context) => {
             const updatedUser = await User.findOneAndUpdate(
-                { _id: user._id },
-                { $pull: { savedBooks: { bookId: params.bookId } } },
+                { _id: context.user._id },
+                { $pull: { savedBooks: { bookId: bookId } } },
                 { new: true }
               );
               if (!updatedUser) {
