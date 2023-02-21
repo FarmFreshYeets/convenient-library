@@ -15,7 +15,7 @@ import { removeBookId } from '../utils/localStorage';
 import { REMOVE_BOOK } from '../utils/mutations';
 
 const SavedBooks = () => {
-  const { data } = useQuery(GET_ME, {
+  const { loading, data } = useQuery(GET_ME, {
     variables: { savedBooks: getSavedBookIds() }
   })
   console.log(data)
@@ -31,7 +31,9 @@ const SavedBooks = () => {
     }
 
     try {
-      const { data } = await deleteBook(bookId, token);
+      const { data } = await deleteBook({ 
+        variables: { bookId }
+      });
 
       if (!data) {
         throw new Error('something went wrong!');
@@ -45,13 +47,13 @@ const SavedBooks = () => {
   };
 
   // if data isn't here yet, say so
-  if (!data) {
+  if (loading) {
     return <h2>LOADING...</h2>;
   }
 
   return (
     <main>
-      <div fluid className='text-light bg-dark p-5'>
+      <div fluid="true" className='text-light bg-dark p-5'>
         <Container>
           <h1>Viewing saved books!</h1>
         </Container>
@@ -65,7 +67,7 @@ const SavedBooks = () => {
         <Row>
           {data.me.savedBooks.map((book) => {
             return (
-              <Col md="4">
+              <Col md="4" key={book.bookId}>
                 <Card key={book.bookId} border='dark'>
                   {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
                   <Card.Body>
